@@ -1,0 +1,88 @@
+---
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - 'helm/**'
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPO: 932805744054.dkr.ecr.us-east-1.amazonaws.com/go-web-app
+  IMAGE: go-web-app
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build the code as Jar
+        run: |
+          cd Application
+          mvn clean package
+
+      - name: SonarQube Scan
+        run: |
+          cd Application
+          mvn sonar:sonar \
+            -Dsonar.host.url=http://18.234.208.239:9000 \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+      - name: Build Docker Image
+        run: |
+          cd Application
+          docker build -t $ECR_REPO:${{ github.run_number }} -f Dockerfile .
+
+  
+  push:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to AWS ECR
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws ecr get-login-password --region $AWS_REGION | \
+          docker login --username AWS --password-stdin $ECR_REPO
+
+      - name: Push Image to ECR
+        run: |
+          docker push $ECR_REPO:${{ github.run_number }}
+          docker tag $ECR_REPO:${{ github.run_number }} $ECR_REPO:latest
+          docker push $ECR_REPO:latest
+
+  
+  update-new-tag-in-helm-chart:
+    runs-on: ubuntu-latest
+    needs: push
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update docker image tag in Helm chart
+        run: |
+          sed -i "s/tag: .*/tag: ${{ github.run_number }}/g" helm/go-web-app-chart/values.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.email "prince.charu7@gmail.com"
+          git config --global user.name "pichuka123"
+          git add helm/go-web-app-chart/values.yaml
+          git commit -m "Update tag in Helm chart to ${{ github.run_number }}"
+          git push origin HEAD:main
