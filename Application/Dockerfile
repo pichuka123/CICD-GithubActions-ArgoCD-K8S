@@ -5,11 +5,10 @@ WORKDIR /app
 
 # Copy pom.xml first for dependency caching
 COPY pom.xml .
-RUN mvn -B -ntp dependency:go-offline
 
 RUN apk add --no-cache maven
 COPY . . 
-RUN mvn -B -ntp clean package -DskipTests   # or use mvn if installed
+RUN mvn clean package -DskipTests   # or use mvn if installed
 
 # Stage 2: Runtime (distroless or slim)
 FROM gcr.io/distroless/java17
