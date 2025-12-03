@@ -11,8 +11,8 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPO: 932805744054.dkr.ecr.us-east-1.amazonaws.com/go-web-app
-  IMAGE: go-web-app
+  ECR_REPO: 932805744054.dkr.ecr.us-east-1.amazonaws.com/my-app
+  IMAGE: my-app
 
 jobs:
   build:
