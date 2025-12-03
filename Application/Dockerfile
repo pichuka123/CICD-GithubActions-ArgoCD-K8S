@@ -8,7 +8,7 @@ COPY pom.xml .
 
 RUN apk add --no-cache maven
 COPY . . 
-RUN mvn clean package -DskipTests   # or use mvn if installed
+RUN mvn clean package -DskipTests 
 
 # Stage 2: Runtime (distroless or slim)
 FROM gcr.io/distroless/java17
