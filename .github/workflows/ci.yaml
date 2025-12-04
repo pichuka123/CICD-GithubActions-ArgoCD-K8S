@@ -36,7 +36,7 @@ jobs:
         run: |
           cd Application
           mvn sonar:sonar \
-            -Dsonar.host.url=http://34.201.160.129:9000 \
+            -Dsonar.host.url=http://98.81.0.243:9000 \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
       - name: Build Docker Image
