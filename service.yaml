@@ -12,6 +12,6 @@ spec:
     protocol: TCP
   selector:
     app: my-app	
-  type: ClusterIP   # exposes the service within the cluster 
+  type: ClusterIP  # exposes the service within the cluster 
 
 # here the selector: app name must be matched with pod's template: label in deplyment.yaml file 
