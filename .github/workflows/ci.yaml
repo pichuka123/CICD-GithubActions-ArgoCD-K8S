@@ -9,6 +9,9 @@ on:
       - 'README.md'
       - 'helm/**'
 
+permissions:
+  contents: write   # <-- required for git push using GITHUB_TOKEN
+
 env:
   AWS_REGION: us-east-1
   ECR_REPO: 932805744054.dkr.ecr.us-east-1.amazonaws.com/my-app
@@ -67,6 +70,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      
       - name: Update docker image tag in Helm chart
         run: |
           sed -i "s/tag: .*/tag: ${{ github.run_number }}/g" helm/my-app-chart/values.yaml
