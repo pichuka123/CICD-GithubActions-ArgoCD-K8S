@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }} 
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: 8080  # port with which the app is containerized 
