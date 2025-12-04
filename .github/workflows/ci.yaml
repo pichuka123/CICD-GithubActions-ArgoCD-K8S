@@ -69,7 +69,7 @@ jobs:
 
       - name: Update docker image tag in Helm chart
         run: |
-          sed -i "s/tag: .*/tag: ${{ github.run_number }}/g" helm/go-web-app-chart/values.yaml
+          sed -i "s/tag: .*/tag: ${{ github.run_number }}/g" helm/my-app-chart/values.yaml
 
       - name: Commit and push changes
         run: |
